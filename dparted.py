@@ -71,7 +71,18 @@ def display_MBR(parts):
 			print "	/dev/sdb"+str(cont)+"    "+str(part[0])+"      "+str(part[0]+part[1]-1)+"     "+str(part[1])+"   "+str((part[1]*SECTOR_SIZE)/(1024*1024))+"MB      "+types[part[2]]
 			cont = cont+1	
 	print "\n"
-				
+			
+def mov(part):
+	hexa = []
+	byte4 = '{:08x}'.format(part)
+	for i in range(8):
+		if (i+1)%2!=0:
+			byte = str(byte4[i])
+		else:
+			byte = byte+str(byte4[i])
+			hexa.append(byte)	
+	return hexa[::-1]
+	
 def write_MBR(parts):
 	"""
 	Permite escribir los cambios dentro del dispositivo.
@@ -89,8 +100,8 @@ def write_MBR(parts):
 			dev.write(chr(part[2])) #tipo
 			dev.seek(3, 1)
 			#Se seleccionan los bytes dentro para 
-			byte_sectors=[('{:08x}'.format(part[1])[i:i+2]) for i in range(0, 8, 2)][::-1]
-			byte_blocks=[('{:08x}'.format(part[1])[i:i+2]) for i in range(0, 8, 2)][::-1]
+			byte_sectors=mov(part[1])
+			byte_blocks=mov(part[1])
 			for byte in byte_sectors:
 				dev.write(chr(int(byte, 16)))
 			for byte in byte_blocks:
